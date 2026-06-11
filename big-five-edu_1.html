@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big Five Personality Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4f8; --surface:#fff; --surface2:#e8eef5;
+  --border:#d0dae6; --border2:#b8c8d8;
+  --ink:#1a2535; --ink2:#4a5e74; --ink3:#8099b0;
+  --o:#d97706; --c:#0d9488; --e:#dc2626; --a:#2563eb; --n:#7c3aed;
+  --accent:#1d4ed8; --accent-bg:#eff6ff;
+  --green:#059669; --red:#dc2626;
+  --radius:8px; --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{min-height:100vh;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6;display:flex;flex-direction:column;align-items:center;padding:0 16px 80px;}
+#app{width:100%;max-width:680px;}
+
+/* LANG */
+.lang-bar{display:flex;justify-content:flex-end;align-items:center;padding:14px 0 10px;gap:8px;}
+.lang-label{font-size:11px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;}
+.lang-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;font-family:'IBM Plex Sans',sans-serif;border:none;background:transparent;color:var(--ink3);cursor:pointer;transition:all .15s;}
+.lang-btn.active{background:var(--accent);color:#fff;}
+
+/* HEADER */
+.site-header{padding:36px 0 32px;border-bottom:2px solid var(--border);margin-bottom:36px;}
+.header-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:18px;}
+.ocean-badge{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.ocean-row{display:flex;gap:3px;}
+.ob{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:#fff;}
+.ob-o{background:var(--o);} .ob-c{background:var(--c);} .ob-e{background:var(--e);}
+.ob-a{background:var(--a);} .ob-n{background:var(--n);} .ob-blank{background:transparent;}
+.header-kicker{font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;}
+.header-h1{font-family:'IBM Plex Serif',serif;font-size:27px;font-weight:600;line-height:1.2;color:var(--ink);}
+.header-h1 em{font-style:italic;color:var(--accent);}
+.header-sub{font-size:13.5px;color:var(--ink2);margin-top:8px;line-height:1.65;}
+.header-meta{display:flex;gap:18px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.meta-item{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:5px;}
+.meta-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+
+/* TRAIT KEY */
+.trait-key{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:26px;}
+.tk-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center;border-top:3px solid transparent;}
+.tk-letter{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:500;margin-bottom:3px;}
+.tk-name{font-size:10px;font-weight:500;color:var(--ink2);line-height:1.3;}
+.tk-jp{font-size:10px;color:var(--ink3);margin-top:2px;}
+
+/* START */
+.start-intro{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px;box-shadow:var(--shadow);font-size:14px;color:var(--ink2);line-height:1.7;}
+.start-intro p+p{margin-top:10px;}
+.start-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:13px 28px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-primary:hover{background:#1e40af;transform:translateY(-1px);}
+.start-stats{font-size:12px;color:var(--ink3);}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:24px;display:none;}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.progress-trait-label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--ink2);}
+.progress-trait-dot{width:8px;height:8px;border-radius:50%;}
+.progress-count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink3);}
+.progress-track{height:3px;background:var(--border);border-radius:2px;}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease;}
+
+/* QUESTION */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;margin-bottom:12px;box-shadow:var(--shadow);display:none;}
+.q-card.active{display:block;animation:fadein .2s ease;}
+.q-meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.q-trait-badge{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#fff;}
+.q-num{font-size:12px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;}
+.q-text-en{font-family:'IBM Plex Serif',serif;font-size:17px;line-height:1.55;color:var(--ink);margin-bottom:5px;}
+.q-text-jp{font-size:13.5px;color:var(--ink2);margin-bottom:22px;line-height:1.6;}
+.q-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.scale-btn{background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;}
+.scale-num{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500;color:var(--ink3);transition:color .15s;}
+.scale-word{font-size:9.5px;color:var(--ink3);text-align:center;line-height:1.3;transition:color .15s;}
+.scale-btn:hover{border-color:var(--accent);background:var(--accent-bg);}
+.scale-btn:hover .scale-num,.scale-btn:hover .scale-word{color:var(--accent);}
+.scale-btn.selected{border-color:var(--accent);background:var(--accent-bg);}
+.scale-btn.selected .scale-num{color:var(--accent);font-weight:600;}
+.scale-btn.selected .scale-word{color:var(--accent);}
+.q-nav{display:none;margin-top:14px;gap:10px;}
+.btn-next{flex:1;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:13px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-next:hover:not(:disabled){background:#1e40af;}
+.btn-next:disabled{opacity:.4;cursor:default;}
+
+/* CALCULATING */
+.calc-panel{display:none;text-align:center;padding:56px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.calc-title{font-family:'IBM Plex Serif',serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+.calc-sub{font-size:13px;color:var(--ink3);margin-bottom:36px;}
+.calc-bars{max-width:340px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+.calc-row{display:flex;align-items:center;gap:12px;}
+.calc-lbl{width:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500;text-align:right;}
+.calc-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.calc-fill{height:100%;width:0;border-radius:3px;transition:width .9s cubic-bezier(.22,1,.36,1);}
+
+/* RESULTS */
+.results-panel{display:none;}
+.section-divider{display:flex;align-items:center;gap:12px;margin:30px 0 18px;}
+.divider-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);white-space:nowrap;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+
+.score-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;}
+.score-hero-head{background:var(--ink);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;}
+.score-hero-title{font-family:'IBM Plex Serif',serif;font-size:17px;}
+.score-hero-sub{font-size:11px;opacity:.6;margin-top:2px;}
+.score-hero-code{font-family:'IBM Plex Mono',monospace;font-size:20px;letter-spacing:4px;}
+.score-bars{padding:22px;}
+.score-row{display:grid;grid-template-columns:130px 1fr 40px 72px;align-items:center;gap:10px;margin-bottom:13px;}
+.score-row:last-child{margin-bottom:0;}
+.score-trait-name{font-size:12px;font-weight:600;text-align:right;}
+.score-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.score-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1);}
+.score-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;text-align:center;}
+.score-level{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;border-radius:4px;text-align:center;}
+.level-high{background:#d1fae5;color:#065f46;} .level-mid{background:#fef3c7;color:#92400e;} .level-low{background:#fee2e2;color:#991b1b;}
+
+.trait-detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;}
+.tdc-header{display:flex;align-items:center;gap:12px;padding:15px 20px 13px;border-bottom:1px solid var(--border);}
+.tdc-color-bar{width:4px;height:38px;border-radius:2px;flex-shrink:0;}
+.tdc-name{font-size:14px;font-weight:600;}
+.tdc-jp{font-size:12px;color:var(--ink3);margin-top:1px;}
+.tdc-score-wrap{margin-left:auto;text-align:right;}
+.tdc-score{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;}
+.tdc-level{font-size:10px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;}
+.tdc-body{padding:15px 20px;}
+.tdc-desc{font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:12px;}
+.tdc-spectrum{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3);border-top:1px solid var(--border);padding-top:9px;}
+.tdc-spec-item{display:flex;flex-direction:column;gap:2px;}
+.tdc-spec-item:last-child{text-align:right;}
+.tdc-spec-label{font-weight:600;color:var(--ink2);}
+
+/* COMPARISON */
+.comparison-intro{font-size:13.5px;color:var(--ink2);line-height:1.65;margin-bottom:12px;}
+.comparison-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:10px;}
+.comparison-table{width:100%;border-collapse:collapse;font-size:13px;}
+.comparison-table th{padding:11px 14px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-align:left;}
+.cth-dim{background:var(--surface2);color:var(--ink3);width:30%;}
+.cth-big5{background:var(--accent);color:#fff;width:35%;}
+.cth-mbti{background:#64748b;color:#fff;width:35%;}
+.comparison-table td{padding:11px 14px;vertical-align:top;border-top:1px solid var(--border);line-height:1.55;}
+.comparison-table tr:nth-child(even) td{background:#fafbfc;}
+.td-dim{font-weight:600;color:var(--ink2);font-size:12px;}
+.td-big5{color:var(--ink);}
+.td-mbti{color:var(--ink2);}
+.verdict-good{color:var(--green);font-weight:600;}
+.verdict-bad{color:var(--red);font-weight:600;}
+
+/* DISCUSSION */
+.discussion-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);}
+.discussion-card h3{font-family:'IBM Plex Serif',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:14px;}
+.dq-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.dq-list li{display:flex;gap:10px;font-size:13.5px;color:var(--ink2);line-height:1.6;padding:11px 13px;background:var(--bg);border-radius:6px;border:1px solid var(--border);}
+.dq-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--accent);flex-shrink:0;margin-top:2px;}
+.dq-secondary{font-size:12px;color:var(--ink3);margin-top:4px;}
+
+.btn-retake{width:100%;margin-top:18px;background:transparent;border:1px solid var(--border2);color:var(--ink2);border-radius:var(--radius);padding:13px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;}
+.btn-retake:hover{border-color:var(--accent);color:var(--accent);}
+
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+@media(max-width:520px){
+  .score-row{grid-template-columns:90px 1fr 34px 58px;gap:7px;}
+  .score-trait-name{font-size:11px;}
+  .trait-key{grid-template-columns:repeat(5,1fr);}
+  .tk-name,.tk-jp{font-size:9px;}
+  .header-h1{font-size:22px;}
+  .comparison-table{font-size:11.5px;}
+  .comparison-table th,.comparison-table td{padding:8px 10px;}
+}
+</style>
+</head>
+<body class="lang-en">
+<div id="app">
+
+<div class="lang-bar">
+  <span class="lang-label" id="ll-label">Language:</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-lang-jp" onclick="setLang('jp')">日本語</button>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="header-top">
+    <div class="ocean-badge">
+      <div class="ocean-row"><div class="ob ob-o">O</div><div class="ob ob-c">C</div><div class="ob ob-e">E</div></div>
+      <div class="ocean-row"><div class="ob ob-a">A</div><div class="ob ob-n">N</div><div class="ob ob-blank"></div></div>
+    </div>
+    <div>
+      <div class="header-kicker" id="hdr-kicker">Personality Psychology · Educational Assessment</div>
+      <h1 class="header-h1" id="hdr-h1">The Big Five <em>OCEAN</em> Assessment</h1>
+      <p class="header-sub" id="hdr-sub">The most empirically supported personality model in psychology. Used in thousands of peer-reviewed studies since the 1980s.</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="meta-item"><div class="meta-dot"></div><span id="meta-q">30 questions</span></div>
+    <div class="meta-item"><div class="meta-dot"></div><span id="meta-t">~5 minutes</span></div>
+    <div class="meta-item"><div class="meta-dot"></div><span id="meta-s">Scientifically validated</span></div>
+    <div class="meta-item"><div class="meta-dot"></div><span id="meta-r">Includes MBTI comparison</span></div>
+  </div>
+</header>
+
+<div class="trait-key">
+  <div class="tk-item" style="border-top-color:var(--o)"><div class="tk-letter" style="color:var(--o)">O</div><div class="tk-name" id="tkn-o">Openness</div><div class="tk-jp" id="tkj-o">開放性</div></div>
+  <div class="tk-item" style="border-top-color:var(--c)"><div class="tk-letter" style="color:var(--c)">C</div><div class="tk-name" id="tkn-c">Conscientiousness</div><div class="tk-jp" id="tkj-c">誠実性</div></div>
+  <div class="tk-item" style="border-top-color:var(--e)"><div class="tk-letter" style="color:var(--e)">E</div><div class="tk-name" id="tkn-e">Extraversion</div><div class="tk-jp" id="tkj-e">外向性</div></div>
+  <div class="tk-item" style="border-top-color:var(--a)"><div class="tk-letter" style="color:var(--a)">A</div><div class="tk-name" id="tkn-a">Agreeableness</div><div class="tk-jp" id="tkj-a">協調性</div></div>
+  <div class="tk-item" style="border-top-color:var(--n)"><div class="tk-letter" style="color:var(--n)">N</div><div class="tk-name" id="tkn-n">Neuroticism</div><div class="tk-jp" id="tkj-n">神経症傾向</div></div>
+</div>
+
+<div id="start-panel">
+  <div class="start-intro" id="start-intro-text">
+    <p>This assessment measures your personality across the five dimensions that psychologists have consistently identified across cultures, age groups, and languages. Unlike typologies that sort people into boxes, the Big Five gives everyone a unique continuous profile.</p>
+    <p>After completing the test, you'll see a detailed breakdown of your scores alongside a comparison with the MBTI — helping you understand what makes a personality measure scientifically robust.</p>
+  </div>
+  <div class="start-actions">
+    <button class="btn-primary" onclick="startQuiz()" id="btn-start">Begin Assessment →</button>
+    <span class="start-stats" id="start-stats">30 questions · 5-point scale · immediate results</span>
+  </div>
+</div>
+
+<div id="progress-wrap" class="progress-wrap">
+  <div class="progress-top">
+    <div class="progress-trait-label"><div class="progress-trait-dot" id="prog-dot"></div><span id="prog-trait-label"></span></div>
+    <span class="progress-count" id="prog-count"></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div id="questions-container"></div>
+<div id="q-nav" class="q-nav" style="display:none">
+  <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+</div>
+
+<div id="calc-panel" class="calc-panel">
+  <div class="calc-title" id="calc-title">Calculating your profile…</div>
+  <div class="calc-sub" id="calc-sub">プロフィールを計算中</div>
+  <div class="calc-bars">
+    <div class="calc-row"><span class="calc-lbl" style="color:var(--o)">O</span><div class="calc-track"><div class="calc-fill" style="background:var(--o)" id="cb-o"></div></div></div>
+    <div class="calc-row"><span class="calc-lbl" style="color:var(--c)">C</span><div class="calc-track"><div class="calc-fill" style="background:var(--c)" id="cb-c"></div></div></div>
+    <div class="calc-row"><span class="calc-lbl" style="color:var(--e)">E</span><div class="calc-track"><div class="calc-fill" style="background:var(--e)" id="cb-e"></div></div></div>
+    <div class="calc-row"><span class="calc-lbl" style="color:var(--a)">A</span><div class="calc-track"><div class="calc-fill" style="background:var(--a)" id="cb-a"></div></div></div>
+    <div class="calc-row"><span class="calc-lbl" style="color:var(--n)">N</span><div class="calc-track"><div class="calc-fill" style="background:var(--n)" id="cb-n"></div></div></div>
+  </div>
+</div>
+
+<div id="results-panel" class="results-panel"></div>
+
+</div>
+<script>
+const T = {
+en:{
+  langLabel:"Language:",
+  hdrKicker:"Personality Psychology · Educational Assessment",
+  hdrH1:'The Big Five <em>OCEAN</em> Assessment',
+  hdrSub:"The most empirically supported personality model in psychology. Used in thousands of peer-reviewed studies since the 1980s.",
+  metaQ:"30 questions",metaT:"~5 minutes",metaS:"Scientifically validated",metaR:"Includes MBTI comparison",
+  tkNames:{O:"Openness",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Neuroticism"},
+  tkJP:{O:"開放性",C:"誠実性",E:"外向性",A:"協調性",N:"神経症傾向"},
+  startIntro:`<p>This assessment measures your personality across the five dimensions that psychologists have consistently identified across cultures, age groups, and languages. Unlike typologies that sort people into boxes, the Big Five gives everyone a unique continuous profile.</p><p>After completing the test, you'll see a detailed breakdown of your scores alongside a comparison with the MBTI — helping you understand what makes a personality measure scientifically robust.</p>`,
+  btnStart:"Begin Assessment →",startStats:"30 questions · 5-point scale · immediate results",
+  scaleWords:["Strongly\ndisagree","Disagree","Neutral","Agree","Strongly\nagree"],
+  btnNext:"Next →",btnSubmit:"See Results →",
+  calcTitle:"Calculating your profile…",calcSub:"プロフィールを計算中",
+  secScores:"Your Scores",secDetail:"Trait Detail",secComparison:"Big Five vs. MBTI",secDiscussion:"Discussion Questions",
+  heroTitle:"Your OCEAN Profile",heroSub:"Scores are on a 0–100 scale within each trait",
+  levelHigh:"HIGH",levelMid:"MID",levelLow:"LOW",
+  traitNames:{O:"Openness to Experience",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Neuroticism"},
+  traitNamesAlt:{O:"開放性",C:"誠実性",E:"外向性",A:"協調性",N:"神経症傾向"},
+  traitDescs:{
+    highO:"You score high on Openness, meaning you're drawn to new ideas, aesthetics, and abstract thinking. You tend to be imaginative and intellectually curious, and you often notice nuance that others miss. Research links high Openness to creativity and openness to unconventional experiences.",
+    lowO:"You score lower on Openness, meaning you tend to favour the familiar and the practical. You're likely direct and concrete in your thinking, and you bring a grounding, reliable perspective to groups. Research links lower Openness to preference for routine and conventional approaches.",
+    highC:"You score high on Conscientiousness, meaning you're organised, reliable, and goal-directed. You tend to plan ahead, follow through on commitments, and hold yourself to clear standards. Research consistently links high Conscientiousness to academic and professional success.",
+    lowC:"You score lower on Conscientiousness, meaning you're flexible and spontaneous. You tend to respond to what's in front of you rather than following a pre-set plan. Research suggests this can be an advantage in rapidly changing environments.",
+    highE:"You score high on Extraversion, meaning you draw energy from social interaction and feel at home in active, stimulating environments. You tend to be talkative, assertive, and enthusiastic. Research links high Extraversion to positive affect and social leadership.",
+    lowE:"You score lower on Extraversion (sometimes called Introversion), meaning you tend to prefer quieter settings and need time alone to recharge. You often think carefully before speaking. Research shows introverts frequently excel in focused, independent work.",
+    highA:"You score high on Agreeableness, meaning you're cooperative, trusting, and attuned to others' needs. You tend to avoid conflict and prioritise group harmony. Research links high Agreeableness to prosocial behaviour and satisfying relationships.",
+    lowA:"You score lower on Agreeableness, meaning you're more competitive and sceptical. You're willing to challenge others and won't easily compromise your views. Research links lower Agreeableness to assertiveness and negotiation effectiveness.",
+    highN:"You score high on Neuroticism, meaning you're more emotionally reactive and sensitive to stress. You may experience mood swings more acutely. Research shows this is associated with greater empathy, but also higher vulnerability to anxiety and depression.",
+    midN:"You score in the middle range on Neuroticism, meaning you have a reasonably balanced emotional life. You can feel stress and worry without being overwhelmed by it, and you generally recover from setbacks at an average pace.",
+    lowN:"You score low on Neuroticism (high emotional stability), meaning you stay calm under pressure and recover quickly from setbacks. You tend to have a consistent, even-keeled emotional tone. Research links low Neuroticism to resilience and general wellbeing.",
+    highO:"You score high on Openness, meaning you're drawn to new ideas, aesthetics, and abstract thinking. You tend to be imaginative and intellectually curious, and you often notice nuance that others miss. Research links high Openness to creativity and openness to unconventional experiences.",
+    midO:"You score in the middle range on Openness, meaning you balance curiosity with practicality. You're open to new experiences in some domains but prefer familiar approaches in others. Research suggests this flexibility is common and well-adapted to most everyday environments.",
+    midC:"You score in the middle range on Conscientiousness, meaning you're reasonably organised and reliable without being rigidly structured. You can plan when needed but also adapt when plans change. This balance is typical in most populations.",
+    midE:"You score in the middle range on Extraversion (sometimes called ambiversion), meaning you draw energy from both social interaction and solitude depending on context. You can be sociable when the situation calls for it and content alone when it doesn't.",
+    midA:"You score in the middle range on Agreeableness, meaning you balance cooperation with assertiveness. You're generally considerate of others but are also willing to push back when you disagree. Research suggests this balance supports both teamwork and independent judgment."
+  },
+  specLow:{O:"Conventional · Practical",C:"Flexible · Spontaneous",E:"Introverted · Reserved",A:"Competitive · Direct",N:"Emotionally stable · Calm"},
+  specHigh:{O:"Curious · Imaginative",C:"Organised · Disciplined",E:"Sociable · Assertive",A:"Cooperative · Empathic",N:"Emotionally reactive · Sensitive"},
+  compIntro:"Understanding the difference between the Big Five and MBTI is central to evaluating personality research critically.",
+  compDim:"Dimension",compB5:"Big Five (OCEAN)",compMB:"MBTI",
+  compRows:[
+    {dim:"Scientific basis",b5:"Derived from factor analysis of actual personality data across multiple independent research groups",mb:"Based on Carl Jung's theoretical typology, developed commercially without a prior empirical foundation"},
+    {dim:"Test-retest reliability",b5:'<span class="verdict-good">High (r ≈ 0.75–0.90)</span> — scores are relatively stable over weeks and months',mb:'<span class="verdict-bad">Moderate–low (r ≈ 0.35–0.65)</span> — ~50% of people get a different type if retested 5 weeks later'},
+    {dim:"Scale type",b5:'<span class="verdict-good">Continuous dimensions</span> — everyone gets a unique numeric profile',mb:'<span class="verdict-bad">Binary categories</span> — forced into one of 16 types, losing information'},
+    {dim:"Cross-cultural validity",b5:"The five-factor structure has been replicated in 50+ countries and languages",mb:"Less cross-cultural validation; some dimensions don't replicate cleanly outside Western samples"},
+    {dim:"Predictive validity",b5:"Predicts job performance, academic success, health behaviour, and relationship quality",mb:"Weak predictive validity for most real-world outcomes; limited incremental value over chance"},
+    {dim:"Research citations",b5:"Tens of thousands of peer-reviewed publications",mb:"Used widely in corporate HR, but relatively few rigorous academic studies"},
+    {dim:"Commercial use",b5:"Freely available; multiple validated instruments (NEO-PI-R, BFI)",mb:"Proprietary; costs hundreds of dollars for full administration"}
+  ],
+  discTitle:"💬 Discussion Questions",
+  discItems:[
+    {pri:"Your Big Five scores are on a continuous scale (0–100). Why might this be more scientifically informative than sorting people into one of 16 fixed types?",sec:"ビッグファイブのスコアは0〜100の連続スケールです。これは人を16の固定タイプに分類するより有益である理由は？"},
+    {pri:"If 50% of people get a different MBTI type when retested after 5 weeks, what does that suggest about what the test is actually measuring?",sec:"MBTI受験者の約50%が5週間後に再受験すると異なるタイプになります。これはテストが実際に何を測定しているかについて何を示唆しますか？"},
+    {pri:"Did your Big Five results match your self-perception? Which trait surprised you most, and why?",sec:"ビッグファイブの結果は自己認識と一致しましたか？どの特性が最も驚きでしたか？"},
+    {pri:"Many companies still use MBTI for hiring despite limited scientific support. What ethical issues does this raise?",sec:"多くの企業は科学的根拠が乏しいにもかかわらず、採用にMBTIを使用しています。どのような倫理的問題を提起しますか？"},
+    {pri:"The Big Five is descriptive, not explanatory — it tells us what personality looks like, but not why people differ. What does this limitation mean for how we should interpret the results?",sec:"ビッグファイブは記述的であり説明的ではありません。この限界は結果の解釈にとって何を意味しますか？"}
+  ],
+  btnRetake:"← Take the assessment again"
+},
+jp:{
+  langLabel:"言語：",
+  hdrKicker:"パーソナリティ心理学・教育的アセスメント",
+  hdrH1:'ビッグファイブ<em>OCEAN</em>性格検査',
+  hdrSub:"心理学で最も実証的な裏付けのある性格モデル。1980年代から何千もの査読済み研究に使用されています。",
+  metaQ:"30問",metaT:"約5分",metaS:"科学的に検証済み",metaR:"MBTI比較付き",
+  tkNames:{O:"開放性",C:"誠実性",E:"外向性",A:"協調性",N:"神経症傾向"},
+  tkJP:{O:"Openness",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Neuroticism"},
+  startIntro:`<p>この検査は、文化・年齢・言語を超えて心理学者が一貫して確認してきた5つの次元で性格を測定します。人をカテゴリに分類する類型論と異なり、ビッグファイブは誰もがユニークな連続プロフィールを持ちます。</p><p>テスト後、スコアの詳細な分析と、MBTIとの比較を確認できます。科学的な性格測定に何が重要かを理解する手助けになります。</p>`,
+  btnStart:"検査を開始する →",startStats:"30問・5段階評価・即時結果",
+  scaleWords:["全く\nそう思わない","そう思わない","どちらでも\nない","そう思う","非常に\nそう思う"],
+  btnNext:"次へ →",btnSubmit:"結果を見る →",
+  calcTitle:"プロフィールを計算中…",calcSub:"Calculating your profile",
+  secScores:"あなたのスコア",secDetail:"特性の詳細",secComparison:"ビッグファイブ vs MBTI",secDiscussion:"ディスカッション課題",
+  heroTitle:"あなたのOCEANプロフィール",heroSub:"スコアは各特性において0〜100の範囲です",
+  levelHigh:"高い",levelMid:"中程度",levelLow:"低い",
+  traitNames:{O:"経験への開放性",C:"誠実性",E:"外向性",A:"協調性",N:"神経症傾向"},
+  traitNamesAlt:{O:"Openness",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Neuroticism"},
+  traitDescs:{
+    highO:"開放性が高いため、新しいアイデアや美的感覚、抽象的思考に引きつけられる傾向があります。想像力が豊かで知的好奇心が強く、他者が見落としがちな細かいニュアンスに気づくことが多いです。高い開放性は創造性や非従来的な経験への志向と関連しています。",
+    lowO:"開放性がやや低いため、慣れ親しんだことや実用的なことを好む傾向があります。具体的で直接的な思考スタイルを持ち、グループに安定した視点をもたらします。低い開放性はルーティンと従来的なアプローチへの選好と関連しています。",
+    highC:"誠実性が高いため、整理整頓ができていて、信頼性があり、目標指向です。事前に計画を立て、約束を果たし、明確な基準を自分に課す傾向があります。高い誠実性は学業や職業での成功と一貫して関連しています。",
+    lowC:"誠実性がやや低いため、柔軟で自発的です。事前の計画に従うよりも目の前の状況に応じて対応する傾向があります。急速に変化する環境ではこれが強みになることがあります。",
+    highE:"外向性が高いため、社会的な交流からエネルギーを得て、活発で刺激的な環境で力を発揮します。話好きで自己主張が強く、熱意があります。高い外向性はポジティブな感情と社会的なリーダーシップに関連しています。",
+    lowE:"外向性がやや低い（内向的）ため、静かな環境を好み、充電のために一人の時間が必要です。発言前によく考える傾向があります。内向的な人は集中した独立した作業で優れた成果を上げることが多いです。",
+    highA:"協調性が高いため、協力的で、信頼性があり、他者のニーズに敏感です。対立を避け、グループの調和を優先する傾向があります。高い協調性は向社会的行動と充実した対人関係に関連しています。",
+    lowA:"協調性がやや低いため、より競争的で懐疑的です。他者に異議を唱え、自分の意見を簡単に妥協しません。低い協調性は自己主張と交渉の効果と関連しています。",
+    highN:"神経症傾向が高いため、感情的な反応がより強く、ストレスに敏感です。気分の変化をより強く経験するかもしれません。これは共感力の高さと関連していますが、不安やうつへの脆弱性も高めます。",
+    midN:"神経症傾向が中程度のため、感情生活のバランスがとれています。ストレスや心配を感じることはありますが、圧倒されることは少なく、挫折からも平均的なペースで立ち直ります。",
+    lowN:"神経症傾向が低い（情動的安定性が高い）ため、プレッシャー下でも落ち着いていて、挫折から素早く立ち直ります。一貫した安定した感情トーンを持つ傾向があります。低い神経症傾向はレジリエンスと全般的な幸福感に関連しています。",
+    highO:"開放性が高いため、新しいアイデアや美的感覚、抽象的思考に引きつけられる傾向があります。想像力が豊かで知的好奇心が強く、他者が見落としがちな細かいニュアンスに気づくことが多いです。高い開放性は創造性や非従来的な経験への志向と関連しています。",
+    midO:"開放性が中程度のため、好奇心と実用性のバランスがとれています。ある領域では新しい経験に積極的で、別の領域では慣れ親しんだアプローチを好みます。この柔軟性は一般的で、多くの日常的な環境に適応しています。",
+    midC:"誠実性が中程度のため、適度に整理整頓ができていて信頼性はありますが、硬直した構造を持つわけではありません。必要な時に計画を立てられますが、計画が変わった時にも適応できます。このバランスはほとんどの人に見られる典型的なパターンです。",
+    midE:"外向性が中程度（両向性とも呼ばれる）のため、状況に応じて社会的な交流と一人の時間の両方からエネルギーを得ます。必要な場面では社交的になれますし、一人でいる時も満足できます。",
+    midA:"協調性が中程度のため、協力と自己主張のバランスがとれています。一般的に他者への配慮はありますが、意見が合わない時は押し返すこともできます。このバランスはチームワークと独立した判断の両方を支えます。"
+  },
+  specLow:{O:"慣習的・実際的",C:"柔軟・自発的",E:"内向的・控えめ",A:"競争的・直接的",N:"感情的に安定・穏やか"},
+  specHigh:{O:"好奇心旺盛・想像力豊か",C:"整理整頓・規律正しい",E:"社交的・自己主張が強い",A:"協力的・共感力が高い",N:"感情的に反応しやすい・敏感"},
+  compIntro:"ビッグファイブとMBTIの違いを理解することは、性格研究を批判的に評価するための中心的な課題です。",
+  compDim:"比較項目",compB5:"ビッグファイブ (OCEAN)",compMB:"MBTI",
+  compRows:[
+    {dim:"科学的根拠",b5:"複数の独立した研究グループによる実際の性格データのファクター分析から導出",mb:"カール・ユングの理論的類型論に基づき、事前の実証的基盤なく商業的に開発された"},
+    {dim:"再検査信頼性",b5:'<span class="verdict-good">高い (r ≈ 0.75–0.90)</span>：スコアは数週間・数ヶ月にわたって比較的安定している',mb:'<span class="verdict-bad">中〜低 (r ≈ 0.35–0.65)</span>：5週間後に再検査すると約50%の人が異なるタイプになる'},
+    {dim:"スケールの種類",b5:'<span class="verdict-good">連続的な次元</span>：全員がユニークな数値プロフィールを得る',mb:'<span class="verdict-bad">二値カテゴリ</span>：16のタイプのいずれかに強制分類され、情報が失われる'},
+    {dim:"文化的妥当性",b5:"50カ国以上・複数言語で5因子構造が再現されている",mb:"文化的検証が少なく、一部の次元は西洋以外のサンプルで再現されない"},
+    {dim:"予測的妥当性",b5:"職務遂行能力、学業成績、健康行動、対人関係の質を予測する",mb:"ほとんどの実世界の結果に対して予測的妥当性が低い"},
+    {dim:"研究引用数",b5:"何万もの査読済み出版物がある",mb:"企業人事で広く使われているが、厳密な学術研究は比較的少ない"},
+    {dim:"商業利用",b5:"自由に利用可能；複数の検証済み尺度がある（NEO-PI-R、BFIなど）",mb:"有料；完全な実施には数万円のコストがかかる"}
+  ],
+  discTitle:"💬 ディスカッション課題",
+  discItems:[
+    {pri:"ビッグファイブのスコアは0〜100の連続スケールです。これは人を16の固定タイプに分類するより、科学的に有益である理由は何でしょうか？",sec:"Your Big Five scores are on a continuous scale (0–100). Why might this be more scientifically informative than sorting people into one of 16 fixed types?"},
+    {pri:"MBTI受験者の約50%が5週間後に再受験すると異なるタイプになります。これはテストが実際に何を測定しているかについて何を示唆していますか？",sec:"If 50% of people get a different MBTI type when retested after 5 weeks, what does that suggest about what the test is actually measuring?"},
+    {pri:"ビッグファイブの結果は自己認識と一致しましたか？どの特性が最も驚きでしたか、そしてなぜですか？",sec:"Did your Big Five results match your self-perception? Which trait surprised you most, and why?"},
+    {pri:"多くの企業は科学的根拠が乏しいにもかかわらず、採用にMBTIを使用しています。これはどのような倫理的問題を提起しますか？",sec:"Many companies still use MBTI for hiring despite limited scientific support. What ethical issues does this raise?"},
+    {pri:"ビッグファイブは記述的であり、説明的ではありません。性格がどのようなものかを示しますが、なぜ人々が異なるのかは示しません。この限界は結果の解釈にとって何を意味しますか？",sec:"The Big Five is descriptive, not explanatory. What does this limitation mean for how we should interpret the results?"}
+  ],
+  btnRetake:"← もう一度検査を受ける"
+}
+};
+
+const QUESTIONS=[
+  {trait:'O',rev:false,en:"I enjoy exploring new ideas and theoretical concepts.",jp:"新しいアイデアや理論的な概念を探求するのが好きだ。"},
+  {trait:'O',rev:false,en:"I notice beauty and aesthetic quality in everyday things.",jp:"日常の物事に美しさや美的な質を感じる。"},
+  {trait:'O',rev:false,en:"I enjoy thought experiments and hypothetical scenarios.",jp:"思考実験や仮想シナリオを楽しむ。"},
+  {trait:'O',rev:true, en:"I prefer sticking with familiar routines over trying new approaches.",jp:"新しいアプローチを試みるより、慣れ親しんだルーティンを続ける方が好きだ。"},
+  {trait:'O',rev:false,en:"I find abstract or philosophical discussions genuinely interesting.",jp:"抽象的または哲学的な議論を本当に面白いと思う。"},
+  {trait:'O',rev:true, en:"I am not particularly interested in art, music, or literature.",jp:"芸術・音楽・文学にはあまり興味がない。"},
+  {trait:'C',rev:false,en:"I keep my belongings organised and my environment tidy.",jp:"持ち物を整理整頓し、環境を清潔に保っている。"},
+  {trait:'C',rev:false,en:"I plan ahead and rarely miss deadlines.",jp:"事前に計画を立て、締め切りを守る。"},
+  {trait:'C',rev:false,en:"I hold myself to high personal standards.",jp:"自分に高い基準を設けている。"},
+  {trait:'C',rev:true, en:"I sometimes start tasks without thinking them fully through.",jp:"十分に考えずに作業を始めることがある。"},
+  {trait:'C',rev:false,en:"I follow through on commitments even when it becomes inconvenient.",jp:"不便になっても約束を最後まで果たす。"},
+  {trait:'C',rev:true, en:"I find it hard to resist distractions when I should be focusing.",jp:"集中すべきときに気が散るのを抑えることが難しい。"},
+  {trait:'E',rev:false,en:"I feel energised after spending time with a large group of people.",jp:"大勢の人と過ごした後に活力を感じる。"},
+  {trait:'E',rev:false,en:"I am comfortable being the centre of attention in social situations.",jp:"社交の場で注目の的になることに抵抗がない。"},
+  {trait:'E',rev:false,en:"Meeting new people is something I genuinely enjoy.",jp:"新しい人と出会うことを本当に楽しんでいる。"},
+  {trait:'E',rev:true, en:"I prefer quiet evenings at home to busy social gatherings.",jp:"賑やかな集まりより、静かな夜を家で過ごす方が好きだ。"},
+  {trait:'E',rev:false,en:"I tend to speak up and share my opinions in group settings.",jp:"グループの場では積極的に発言し、意見を述べる傾向がある。"},
+  {trait:'E',rev:true, en:"I find small talk and casual socialising draining.",jp:"雑談や気軽な社交活動はエネルギーを消耗させると感じる。"},
+  {trait:'A',rev:false,en:"I go out of my way to make others feel comfortable.",jp:"他者が心地よく感じられるよう積極的に行動する。"},
+  {trait:'A',rev:false,en:"I generally trust that people have good intentions.",jp:"人々は善意を持っていると基本的に信じている。"},
+  {trait:'A',rev:false,en:"I find it easy to put myself in other people's shoes.",jp:"他者の立場に立って考えることが容易だ。"},
+  {trait:'A',rev:true, en:"I can be blunt or critical when I think someone is wrong.",jp:"誰かが間違っていると思うときは、率直に批判的になることがある。"},
+  {trait:'A',rev:false,en:"I prefer cooperation over competition when working with others.",jp:"他者と協力するとき、競争より協力を好む。"},
+  {trait:'A',rev:true, en:"I am sceptical of people's motives until they prove themselves.",jp:"人々の動機は証明されるまで懐疑的に見る。"},
+  {trait:'N',rev:false,en:"Small setbacks or frustrations can affect my mood for a long time.",jp:"小さな失敗や挫折が長い時間気分に影響することがある。"},
+  {trait:'N',rev:false,en:"I tend to worry about things more than other people seem to.",jp:"他の人より物事を心配しがちだ。"},
+  {trait:'N',rev:true, en:"I stay calm and composed when facing stressful situations.",jp:"ストレスのある状況に直面しても、落ち着いて冷静でいられる。"},
+  {trait:'N',rev:false,en:"My mood can change quickly depending on what happens around me.",jp:"周囲の状況によって気分が素早く変わることがある。"},
+  {trait:'N',rev:true, en:"I recover quickly after experiencing disappointment or failure.",jp:"失望や失敗を経験した後、素早く立ち直ることができる。"},
+  {trait:'N',rev:false,en:"I often feel tense or anxious even without a clear reason.",jp:"はっきりした理由がなくても、緊張したり不安を感じたりすることが多い。"}
+];
+
+const COLORS={O:'var(--o)',C:'var(--c)',E:'var(--e)',A:'var(--a)',N:'var(--n)'};
+let lang='en', currentQ=0, answers={};
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btn-lang-en').classList.toggle('active',l==='en');
+  document.getElementById('btn-lang-jp').classList.toggle('active',l==='jp');
+  const t=T[l];
+  document.getElementById('ll-label').textContent=t.langLabel;
+  document.getElementById('hdr-kicker').textContent=t.hdrKicker;
+  document.getElementById('hdr-h1').innerHTML=t.hdrH1;
+  document.getElementById('hdr-sub').textContent=t.hdrSub;
+  document.getElementById('meta-q').textContent=t.metaQ;
+  document.getElementById('meta-t').textContent=t.metaT;
+  document.getElementById('meta-s').textContent=t.metaS;
+  document.getElementById('meta-r').textContent=t.metaR;
+  ['O','C','E','A','N'].forEach(tr=>{
+    const k=tr.toLowerCase();
+    const nameEl=document.getElementById('tkn-'+k);
+    const jpEl=document.getElementById('tkj-'+k);
+    if(nameEl) nameEl.textContent=t.tkNames[tr];
+    if(jpEl) jpEl.textContent=t.tkJP[tr];
+  });
+  const si=document.getElementById('start-intro-text');
+  if(si) si.innerHTML=t.startIntro;
+  const bs=document.getElementById('btn-start');
+  if(bs) bs.textContent=t.btnStart;
+  const ss=document.getElementById('start-stats');
+  if(ss) ss.textContent=t.startStats;
+  document.getElementById('calc-title').textContent=t.calcTitle;
+  document.getElementById('calc-sub').textContent=t.calcSub;
+  refreshQuestionTexts();
+  updateNextBtn();
+}
+
+function refreshQuestionTexts(){
+  const t=T[lang];
+  QUESTIONS.forEach((q,i)=>{
+    const enEl=document.getElementById('qt-en-'+i);
+    const jpEl=document.getElementById('qt-jp-'+i);
+    if(enEl) enEl.style.display='block';
+    if(jpEl) jpEl.style.display=lang==='jp'?'block':'none';
+    for(let v=1;v<=5;v++){
+      const sw=document.getElementById('sw-'+i+'-'+v);
+      if(sw) sw.innerHTML=t.scaleWords[v-1].replace('\n','<br>');
+    }
+  });
+  const pLabel=document.getElementById('prog-trait-label');
+  if(pLabel && currentQ<QUESTIONS.length) pLabel.textContent=T[lang].traitNames[QUESTIONS[currentQ].trait];
+}
+
+function updateNextBtn(){
+  const btn=document.getElementById('btn-next');
+  if(!btn) return;
+  const isLast=currentQ===QUESTIONS.length-1;
+  btn.textContent=isLast?T[lang].btnSubmit:T[lang].btnNext;
+}
+
+function startQuiz(){
+  document.getElementById('start-panel').style.display='none';
+  document.getElementById('progress-wrap').style.display='block';
+  document.getElementById('q-nav').style.display='flex';
+  buildQuestions();
+  showQuestion(0);
+}
+
+function buildQuestions(){
+  const c=document.getElementById('questions-container');
+  c.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const card=document.createElement('div');
+    card.className='q-card';
+    card.id='qcard-'+i;
+    const col=COLORS[q.trait];
+    const scaleHTML=[1,2,3,4,5].map(v=>`<button class="scale-btn" onclick="selectAnswer(${i},${v})" id="sbtn-${i}-${v}"><span class="scale-num">${v}</span><span class="scale-word" id="sw-${i}-${v}">${T[lang].scaleWords[v-1].replace('\n','<br>')}</span></button>`).join('');
+    card.innerHTML=`<div class="q-meta"><span class="q-trait-badge" style="background:${col}">${q.trait}</span><span class="q-num">${i+1} / ${QUESTIONS.length}</span></div><div class="q-text-en" id="qt-en-${i}">${q.en}</div><div class="q-text-jp" id="qt-jp-${i}" style="display:${lang==='jp'?'block':'none'}">${q.jp}</div><div class="q-scale">${scaleHTML}</div>`;
+    c.appendChild(card);
+  });
+}
+
+function showQuestion(idx){
+  document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('active'));
+  const card=document.getElementById('qcard-'+idx);
+  if(card){card.classList.add('active');card.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  const pct=Math.round((idx/QUESTIONS.length)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('prog-count').textContent=`${idx+1} / ${QUESTIONS.length}`;
+  const tr=QUESTIONS[idx].trait;
+  document.getElementById('prog-dot').style.background=`var(--${tr.toLowerCase()})`;
+  document.getElementById('prog-trait-label').textContent=T[lang].traitNames[tr];
+  const btn=document.getElementById('btn-next');
+  btn.disabled=!(idx in answers);
+  btn.textContent=(idx===QUESTIONS.length-1)?T[lang].btnSubmit:T[lang].btnNext;
+  if(idx in answers) highlightBtn(idx,answers[idx]);
+}
+
+function selectAnswer(qIdx,val){
+  answers[qIdx]=val;
+  highlightBtn(qIdx,val);
+  document.getElementById('btn-next').disabled=false;
+}
+
+function highlightBtn(qIdx,val){
+  for(let v=1;v<=5;v++){
+    const b=document.getElementById(`sbtn-${qIdx}-${v}`);
+    if(b) b.classList.toggle('selected',v===val);
+  }
+}
+
+function nextQuestion(){
+  if(!(currentQ in answers)) return;
+  if(currentQ<QUESTIONS.length-1){currentQ++;showQuestion(currentQ);}
+  else{runCalculating();}
+}
+
+function computeScores(){
+  const raw={O:[],C:[],E:[],A:[],N:[]};
+  QUESTIONS.forEach((q,i)=>{
+    if(!(i in answers)) return;
+    let v=answers[i];
+    if(q.rev) v=6-v;
+    raw[q.trait].push(v);
+  });
+  const scores={};
+  ['O','C','E','A','N'].forEach(tr=>{
+    const arr=raw[tr];
+    const avg=arr.reduce((a,b)=>a+b,0)/arr.length;
+    scores[tr]=Math.round(((avg-1)/4)*100);
+  });
+  return scores;
+}
+
+function runCalculating(){
+  document.getElementById('questions-container').style.display='none';
+  document.getElementById('q-nav').style.display='none';
+  document.getElementById('progress-wrap').style.display='none';
+  const calc=document.getElementById('calc-panel');
+  calc.style.display='block';
+  const scores=computeScores();
+  setTimeout(()=>{
+    ['O','C','E','A','N'].forEach(tr=>{
+      document.getElementById('cb-'+tr.toLowerCase()).style.width=scores[tr]+'%';
+    });
+  },400);
+  setTimeout(()=>{calc.style.display='none';renderResults(scores);},3000);
+}
+
+function getLevel(s){return s>=65?'high':s>=35?'mid':'low';}
+function divider(label){return `<div class="section-divider"><div class="divider-line"></div><div class="divider-label">${label}</div><div class="divider-line"></div></div>`;}
+
+function renderResults(scores){
+  const panel=document.getElementById('results-panel');
+  panel.style.display='block';
+  panel.innerHTML='';
+  const t=T[lang];
+
+  // Score overview
+  panel.innerHTML+=divider(t.secScores);
+  const code=['O','C','E','A','N'].map(tr=>getLevel(scores[tr])==='high'?tr:tr.toLowerCase()).join('');
+  let barsHTML=['O','C','E','A','N'].map(tr=>{
+    const s=scores[tr],lv=getLevel(s);
+    const lvClass=lv==='high'?'level-high':lv==='mid'?'level-mid':'level-low';
+    const lvLabel=lv==='high'?t.levelHigh:lv==='mid'?t.levelMid:t.levelLow;
+    return `<div class="score-row"><div class="score-trait-name" style="color:var(--${tr.toLowerCase()})">${t.traitNames[tr]}</div><div class="score-track"><div class="score-fill" id="sf-${tr}" style="background:var(--${tr.toLowerCase()})"></div></div><div class="score-val" style="color:var(--${tr.toLowerCase()})">${s}</div><div class="score-level ${lvClass}">${lvLabel}</div></div>`;
+  }).join('');
+  panel.innerHTML+=`<div class="score-hero"><div class="score-hero-head"><div><div class="score-hero-title">${t.heroTitle}</div><div class="score-hero-sub">${t.heroSub}</div></div><div class="score-hero-code">${code.toUpperCase()}</div></div><div class="score-bars">${barsHTML}</div></div>`;
+  setTimeout(()=>{['O','C','E','A','N'].forEach(tr=>{const el=document.getElementById('sf-'+tr);if(el)el.style.width=scores[tr]+'%';});},150);
+
+  // Trait detail
+  panel.innerHTML+=divider(t.secDetail);
+  ['O','C','E','A','N'].forEach(tr=>{
+    const s=scores[tr],lv=getLevel(s);
+    const key=(lv==='high'?'high':lv==='low'?'low':'mid')+tr;
+    const desc=t.traitDescs[key];
+    const mainName=t.traitNames[tr];
+    const altName=t.traitNamesAlt[tr];
+    const col=`var(--${tr.toLowerCase()})`;
+    panel.innerHTML+=`<div class="trait-detail-card"><div class="tdc-header"><div class="tdc-color-bar" style="background:${col}"></div><div><div class="tdc-name" style="color:${col}">${mainName}</div><div class="tdc-jp">${altName}</div></div><div class="tdc-score-wrap"><div class="tdc-score" style="color:${col}">${s}</div><div class="tdc-level">${lv==='high'?t.levelHigh:lv==='mid'?t.levelMid:t.levelLow}</div></div></div><div class="tdc-body"><div class="tdc-desc">${desc}</div><div class="tdc-spectrum"><div class="tdc-spec-item"><div class="tdc-spec-label">▼ ${lang==='jp'?'低':'Low'}</div><div>${t.specLow[tr]}</div></div><div class="tdc-spec-item"><div class="tdc-spec-label">${lang==='jp'?'高':'High'} ▲</div><div>${t.specHigh[tr]}</div></div></div></div></div>`;
+  });
+
+  // Comparison
+  panel.innerHTML+=divider(t.secComparison);
+  const rowsHTML=t.compRows.map(r=>`<tr><td class="td-dim">${r.dim}</td><td class="td-big5">${r.b5}</td><td class="td-mbti">${r.mb}</td></tr>`).join('');
+  panel.innerHTML+=`<p class="comparison-intro">${t.compIntro}</p><div class="comparison-wrap"><table class="comparison-table"><thead><tr><th class="cth-dim">${t.compDim}</th><th class="cth-big5">${t.compB5}</th><th class="cth-mbti">${t.compMB}</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>`;
+
+  // Discussion
+  panel.innerHTML+=divider(t.secDiscussion);
+  const dqHTML=t.discItems.map((item,i)=>`<li><span class="dq-num">Q${i+1}</span><div><div>${item.pri}</div><div class="dq-secondary">${item.sec}</div></div></li>`).join('');
+  panel.innerHTML+=`<div class="discussion-card"><h3>${t.discTitle}</h3><ul class="dq-list">${dqHTML}</ul></div>`;
+  panel.innerHTML+=`<button class="btn-retake" onclick="resetQuiz()">${t.btnRetake}</button>`;
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+function resetQuiz(){
+  currentQ=0;answers={};
+  document.getElementById('results-panel').style.display='none';
+  document.getElementById('results-panel').innerHTML='';
+  document.getElementById('questions-container').innerHTML='';
+  document.getElementById('questions-container').style.display='';
+  document.getElementById('start-panel').style.display='block';
+  document.getElementById('progress-wrap').style.display='none';
+  document.getElementById('q-nav').style.display='none';
+  document.getElementById('start-intro-text').innerHTML=T[lang].startIntro;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
